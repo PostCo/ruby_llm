@@ -16,7 +16,10 @@ module RubyLLM
           payload = {
             contents: format_messages(messages),
             generationConfig: {
-              temperature: temperature
+              temperature: temperature,
+              thinkingConfig: {
+                thinkingBudget: 256,
+              }
             }
           }
           payload[:tools] = format_tools(tools) if tools.any?
@@ -76,7 +79,7 @@ module RubyLLM
             input_tokens: data.dig('usageMetadata', 'promptTokenCount'),
             output_tokens: 
               data.dig('usageMetadata', 'candidatesTokenCount') +
-              data.dig('usageMetadata', 'thoughtsTokenCount'),
+              (data.dig('usageMetadata', 'thoughtsTokenCount') || 0),
             model_id: data['modelVersion'] || response.env.url.path.split('/')[3].split(':')[0]
           )
         end
